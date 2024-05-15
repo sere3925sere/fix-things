@@ -1,0 +1,82 @@
+﻿================
+Info:
+* Visual Studio 2005 produces smaller binaries right now. It is possible to do the same with Visual Studio 2019 and maybe possible with 2022, but why bother.
+* To check assembly output, go to Project Properties -> C/C++ -> Output Files -> Assembler Output.
+* Tried to do C++ inheritance, but got those errors. So I use function pointers instead.
+1>main.obj : error LNK2001: unresolved external symbol "const type_info::`vftable'" (??_7type_info@@6B@)
+1>main.obj : error LNK2001: unresolved external symbol __purecall
+* Info on how to remove C/C++ runtime from your programs: https://hero.handmade.network/forums/code-discussion/t/94-guide_-_how_to_avoid_c_c++_runtime_on_windows
+
+===============
+
+To do never:
+* I shouldn't waste so much time on this program, it isn't very important, just make it so it works and don't polish it too much.
+* Better gui approach. I don't like to do that, because it will most likely make gui less flexible and more complicated.
+-----------------
+Change the way ui works, make it more data driven rather than hardcoded like it is?
+
+Was planning to add gui lite system, like this.
+V(idget)_DROPDOWN 3 &gMenu.lang langEn langJp langRu
+V_TEXT &gMenu.extensions &textExtensions
+V_TEXT &gMenu.bufferSize &textBufferSize
+V_BUTTON convert &onConvert
+
+enum Vidget {
+	V_Null,
+	V_Dropdown,
+	V_Text,
+	V_Button,
+};
+
+u4 menuMainView[] = {
+	V_Dropdown,
+	V_Null,
+};
+----------------
+void menu(wing::HWND hWnd, u4 message, u4 wParam, u4 lParam) {
+	if (gMenu.mode == modeMain) return menuMain(hWnd, message, wParam, lParam);
+	else if (gMenu.mode == modeLangSelect) return menuLangChange(hWnd, message, wParam, lParam);
+	else if (gMenu.mode == modeFixWhat) return menuFixWhat(hWnd, message, wParam, lParam);
+	else if (gMenu.mode == modeDoActualWork) return menuDoActualWork(hWnd, message, wParam, lParam);
+	else if (gMenu.mode == modeHelp) return menuHelp(hWnd, message, wParam, lParam);
+	else if (gMenu.mode == modeFixWhatLineend) return menuFixWhatLineend(hWnd, message, wParam, lParam);
+}
+
+Can I simplify this somewhat? Function pointer for example.
+
+Messages return 0 when processed, and something else in special situations, like -1 or 1.
+But 0 is the default.
+--------------------
+* Ability to view log without saving logfile on disk. One guy told me that programs that save log are just as shitty as CLI programs, and I kinda agree. Saving files without permission is kinda rude. And add [Save log] button? I think that might be a good idea.
+* IMGUI is something that might be worth looking into.
+* I kinda want to show droplist closer to the cursor, it is a bit disorienting as it is right now.
+* Going back to the previous menu on right click. Bad idea, this will break text edit field, it will be impossible to copypaste with a mouse.
+* Customize file buffer length from gui itself. Will make program more complicated.
+* Add "Buffer size:" text field. If that is ever an issue, easier to recompile the program though.
+* Convince emuera devs to use .CFG instead of .config and .CSV instead of .csv. Config is more readable though, but since when readability is a priority in programming.
+* Use a proper choose file dialogue instead of just copypastying it from file explorer. Calling it is complicated and this dialogue is pretty bad anyway.
+----------------
+If you're going to do that, use code like this.
+HRESULT hr = CoInitializeEx(null, COINIT_APARTMENTTHREADED);
+GetOpenFileNameA
+----------------
+* Recheck gMenu.fileExtensionsCap and everything around text field. There might be bug if you ever input around MAX_PATH characters, but text field width doesn't let that to happen currently.
+* Make it compile under Digital Mars C++ compiler. All you need is in trash.7z/project-dmc, issue with DMC is that it doesn't understand #pragma once and doing goto over variable declarations. It is possible to work around that, but not worth it.
+* Make it compile under Visual Studio 2019 and such built, try mason build. Check out trash.7z/project-vs2019
+* Let's make url in help clickable. I imagine that typing that is a problem for people who don't know english.
+Maybe show "Link copied" somewhere once the link is copied? I don't want to just open the page, what if user has more than one browser.
+* Maybe move cEdit into a separate file. It depends on edit_procedure though.
+* ctrl-a doesn't select all text in edit control. Easy to do, just use EM_SETSEL, but I don't want to bother.
+===============
+To maybe do one day, most likely never:
+* Make program reentrant, add [back] button when program finished working. Reopening program can get a bit annoying.
+* Move [Inspect] and [Convert] on the same line, so it's harder to misclick.
+* Add this TODO on git. Let some other sucker work on it, if he wants to.
+* Add UTF-16 or UCS-2 support.
+----------------
+linjan2.github.io/utf16-utf8.html
+UTF-16 and UTF-8 in C
+I assume MultiByteToWideChar does UTF-8 to UCS-2, close but not quite.
+Proper name is UCS-2 LE BOM
+unicodebook.readthedocs.io
+==================
